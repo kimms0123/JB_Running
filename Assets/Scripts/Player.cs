@@ -16,13 +16,14 @@ public class Player : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space) && isGrounded) {
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
             //Rb.linearVelocityX = 2;
             //Rb.linearVelocityY = 3;
             Rb.AddForceY(JumpForce, ForceMode2D.Impulse);
@@ -31,11 +32,28 @@ public class Player : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision) //¥Ÿ∏• colliderøÕ √Êµπ«ﬂ¿ª ∂ß
+    void OnCollisionEnter2D(Collision2D collision) //colliderÏóê ÎãøÏïòÎäîÏßÄ Í∞êÏßÄ
     {
-        if(collision.gameObject.name == "Platfrom") {
+        if (collision.gameObject.name == "Platfrom")
+        {
             isGrounded = true;
             Ani.SetInteger("state", 2);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "enemy")
+        {
+
+        }
+        else if (collision.gameObject.tag == "food")
+        {
+
+        }
+        else if (collision.gameObject.tag == "golden")
+        {
+            
         }
     }
 }
