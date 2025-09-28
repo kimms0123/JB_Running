@@ -1,22 +1,19 @@
-using System;
-using System.Runtime.ExceptionServices;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     [Header("Settings")]
-    public float JumpForce;
+    public float JupmForce;
 
-    [Header("References")]
-    public Rigidbody2D Rb;
-    public Animator Ani;
-
+    [Header("Reference")]
+    public Rigidbody2D PlayerRigid;
     private bool isGrounded = true;
+    public Animator PlayerAnimator;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
@@ -24,23 +21,25 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            //Rb.linearVelocityX = 2;
-            //Rb.linearVelocityY = 3;
-            Rb.AddForceY(JumpForce, ForceMode2D.Impulse);
+
+            PlayerRigid.AddForceY(JupmForce, ForceMode2D.Impulse);
             isGrounded = false;
-            Ani.SetInteger("state", 1);
+            PlayerAnimator.SetInteger("state", 1);
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision) //collider에 닿았는지 감지
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "Platfrom")
+        if(collision.gameObject.name == "Platform")
         {
+            if (!isGrounded)
+            {
+                PlayerAnimator.SetInteger("state", 2);
+            }
             isGrounded = true;
-            Ani.SetInteger("state", 2);
+            
         }
     }
-
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "enemy")
@@ -53,7 +52,7 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.tag == "golden")
         {
-            
+
         }
     }
 }
