@@ -148,7 +148,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 315840938}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abd12ed8e230864bb57fa2442470cf7, type: 3}
+  m_Script: {fileID: 11500000, guid: aa2b4c48dbb7bac48b8d851fdf8a8b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   scrollSpeed: 0.1
@@ -493,7 +493,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1035556378}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abd12ed8e230864bb57fa2442470cf7, type: 3}
+  m_Script: {fileID: 11500000, guid: aa2b4c48dbb7bac48b8d851fdf8a8b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   scrollSpeed: 0.2
@@ -695,7 +695,7 @@ Transform:
   m_GameObject: {fileID: 1511499203}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.3052845, y: -1.56, z: 0}
+  m_LocalPosition: {x: -2.94, y: -0.73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -783,12 +783,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1511499203}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27ae3bca5dcb5b146a2801e49fffd36b, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b5bd0a43f6e609478b37263284ef363, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   JupmForce: 12
   PlayerRigid: {fileID: 1511499207}
   PlayerAnimator: {fileID: 1511499204}
+  PlayerCollider: {fileID: 1511499208}
 --- !u!1 &1786009543
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,7 +819,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1786009543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abd12ed8e230864bb57fa2442470cf7, type: 3}
+  m_Script: {fileID: 11500000, guid: aa2b4c48dbb7bac48b8d851fdf8a8b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   scrollSpeed: 0.8
