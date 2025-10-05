@@ -17,8 +17,8 @@ public class Player : MonoBehaviour
     // 더블 점프를 위한 점프 횟수 카운트(0 = 바닥, 1 = 공중 점프, 2 = 더블 점프)
     private int jumpCount = 0;
 
-    private int lives = 3;
-    private bool isInvincible = false;
+    public int lives = 3;
+    public bool isInvincible = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
