@@ -38,7 +38,7 @@
 | ------------ | ------------------------------------- |
 | **엔진**       | Unity (2D 모드)                         |
 | **프로그래밍 언어** | C#                                    |
-| **주요 스크립트**  | `Player.cs`, `UIManager.cs`           |
+| **주요 스크립트**  | `Player.cs`, `UIManager.cs`, `Background.cs`, `Destroyer.cs`, `Spawner.cs`           |
 | **물리 시스템**   | Rigidbody2D, Collider2D 기반 충돌 처리      |
 | **애니메이션**    | Animator 상태 전환(`Idle`, `Run`, `Jump`) |
 | **UI 시스템**   | TextMeshPro, Canvas, Button           |
