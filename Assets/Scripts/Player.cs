@@ -1,124 +1,181 @@
 using UnityEngine;
+using System.Collections;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
     [Header("Settings")]
-    public float JupmForce;
+    public float JupmForce = 12f;
+    private const float PushbackDistance = 0.5f;
+
+    [Header("Hit Counter")]
+    private int knockbackCount = 0;
+    public int maxKnockbackHits = 3;
+    public float FinalKnockbackForce = 15f;
 
     [Header("Reference")]
     public Rigidbody2D PlayerRigid;
-    
-    private bool isGrounded = true;
-    
     public Animator PlayerAnimator;
-
     public BoxCollider2D PlayerCollider;
 
-    // ´õºí Á¡ÇÁ¸¦ À§ÇÑ Á¡ÇÁ È½¼ö Ä«¿îÆ®(0 = ¹Ù´Ú, 1 = °øÁß Á¡ÇÁ, 2 = ´õºí Á¡ÇÁ)
+    // UI ê´€ë¦¬ ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡° ë³€ìˆ˜
+    private UIManager uiManager;
+
+    [Header("State")]
+    public float platformScrollSpeed = 0.8f;
+    private bool isGrounded = true;
     private int jumpCount = 0;
-
-    private int lives = 3;
     private bool isInvincible = false;
+    private bool isDead = false;
+    private Coroutine invincibilityCoroutine;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // ê±°ë¦¬ ì¸¡ì •ìš© ë³€ìˆ˜
+    private float startX;
+    private float currentDistance;
+
     void Start()
     {
-        
+        if (PlayerRigid == null)
+        {
+            PlayerRigid = GetComponent<Rigidbody2D>();
+        }
+        Time.timeScale = 1f;
+
+        uiManager = FindObjectOfType<UIManager>();
+        if (uiManager == null)
+        {
+            Debug.LogError("UIManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! Canvasì— ìŠ¤í¬ë¦½íŠ¸ë¥¼ ì—°ê²°í–ˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.");
+        }
+        // ì‹œì‘ X ìœ„ì¹˜ ì €ì¥
+        startX = transform.position.x;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (isDead || isInvincible) return;
+
+        // í˜„ì¬ ì´ë™ ê±°ë¦¬ ê³„ì‚°
+        currentDistance = transform.position.x - startX;
+
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < 2)
         {
-            // y¼Óµµ¸¦ ÃÊ±âÈ­ÇØ¼­ ´õºíÁ¡ÇÁ°¡ ÀÏÁ¤ÇÏ°Ô ÀÛµ¿ÇÏµµ·Ï
             PlayerRigid.linearVelocity = new Vector2(PlayerRigid.linearVelocity.x, 0);
-
             PlayerRigid.AddForce(Vector2.up * JupmForce, ForceMode2D.Impulse);
             jumpCount++;
-
-            // ¾Ö´Ï¸ŞÀÌ¼Ç Á¦¾î (ÇÊ¿ä¿¡ µû¶ó º¯°æ °¡´É)
             PlayerAnimator.SetInteger("state", 1);
         }
-
-        // ±âÁ¸ ÄÚµå
-        // if (Input.GetKeyDown(KeyCode.Space) && jumpCount < 2) // ¿ø·¡ isGrounded
-        // {
-            //PlayerRigid.AddForceY(JupmForce, ForceMode2D.Impulse);
-            //isGrounded = false;
-
-            //PlayerAnimator.SetInteger("state", 1);
-        //}
-    }
-    void KillPlayer()
-    {
-        PlayerCollider.enabled = false;
-        PlayerAnimator.enabled = false;
-        PlayerRigid.AddForceY(JupmForce, ForceMode2D.Impulse);
     }
 
-    void Hit()
+    void HandleHitCount()
     {
-        lives -= 1;
-        if(lives == 0)
+        knockbackCount++;
+
+        if (knockbackCount >= maxKnockbackHits)
         {
-            KillPlayer();
+            FinalKnockbackToBird();
         }
     }
 
-    void Heal()
+    // 3íšŒì§¸ í”¼ê²© ì‹œ ìµœì¢… ë„‰ë°± (ê²Œì„ ì˜¤ë²„ ìœ ë„)
+    void FinalKnockbackToBird()
     {
-        //ÇÃ·¹ÀÌ¾î ±âº» »ı¸í= 3
-        lives = Mathf.Min(3, lives + 1);
+        if (isDead) return;
+
+        // isDead = true; // <-- GameOver()ê°€ í˜¸ì¶œë˜ì§€ ëª»í•˜ê²Œ ë§‰ë˜ ì´ ì¤„ì„ ì œê±°í–ˆìŠµë‹ˆë‹¤!
+
+        Debug.Log("ìµœì¢… í”¼ê²©! ì™¼ìª½ ìƒˆë¥¼ í–¥í•´ ë°€ë ¤ë‚©ë‹ˆë‹¤.");
+
+        PlayerRigid.linearVelocity = Vector2.zero;
+        PlayerRigid.linearVelocity = Vector2.zero;
+
+        Vector2 finalKnockbackDirection = new Vector2(-1.5f, 0.7f).normalized;
+        PlayerRigid.AddForce(finalKnockbackDirection * FinalKnockbackForce, ForceMode2D.Impulse);
+
+        // GameOver()ê°€ isDead ì„¤ì •ì„ í¬í•¨í•œ ëª¨ë“  ì²˜ë¦¬ë¥¼ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+        GameOver();
     }
 
-    void StartInvincible()
-    {
-        isInvincible = true;
-        Invoke("StopInvincible", 5f);
-    }
-
-    void StopInvincible()
-    {
-        isInvincible = false;
-    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.name == "Platform")
+        if (isDead) return;
+
+        if (collision.gameObject.name == "Platform")
         {
             isGrounded = true;
-            jumpCount = 0; //¶¥¿¡ ´êÀ¸¸é Á¡ÇÁ È½¼ö ÃÊ±âÈ­
+            jumpCount = 0;
             PlayerAnimator.SetInteger("state", 2);
-
-            // ±âÁ¸ ÄÚµå
-            //if (!isGrounded)
-            //{
-            //    PlayerAnimator.SetInteger("state", 2);
-            //}
-            //isGrounded = true;
-            
         }
     }
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collider.gameObject.tag == "enemy")
+        if (isDead) return;
+
+        if (collider.gameObject.CompareTag("obstacle"))
         {
-            if (!isInvincible)
-            {
-                Destroy(collider.gameObject);
-                Hit();
-            }
+            if (isInvincible) return;
+            PushBackLeftAndStop();
+            HandleHitCount();
+            Destroy(collider.gameObject);
+            invincibilityCoroutine = StartCoroutine(InvincibilityDelay());
         }
-        else if (collider.gameObject.tag == "food")
+
+        else if (collider.gameObject.CompareTag("emeny"))
+        {
+            GameOver();
+        }
+
+        else if (collider.gameObject.CompareTag("food") || collider.gameObject.CompareTag("golden"))
         {
             Destroy(collider.gameObject);
-            Heal();
-        }
-        else if (collider.gameObject.tag == "golden")
-        {
-            Destroy(collider.gameObject);
-            StartInvincible();
         }
     }
+
+    void PushBackLeftAndStop()
+    {
+        Vector3 pushVector = new Vector3(-PushbackDistance, 0, 0);
+        transform.position += pushVector;
+        PlayerRigid.linearVelocity = Vector2.zero;
+        PlayerRigid.angularVelocity = 0f;
+    }
+
+    IEnumerator InvincibilityDelay()
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(0.5f);
+        isInvincible = false;
+    }
+
+    // ê²Œì„ ì˜¤ë²„ í•¨ìˆ˜: Playerì˜ ë¬¼ë¦¬ ë¹„í™œì„±í™” ë° UIManager í˜¸ì¶œ ë‹´ë‹¹
+    void GameOver()
+    {
+        if (isDead) return; // ì¤‘ë³µ í˜¸ì¶œ ë°©ì§€
+        isDead = true; // ì‚¬ë§ ìƒíƒœ ì„¤ì •
+        Debug.Log("ê²Œì„ ì˜¤ë²„! (Player ìŠ¤í¬ë¦½íŠ¸)");
+
+        // 1. UIManagerì—ê²Œ ì „ì²´ ê²Œì„ ì •ì§€ ë° UI í‘œì‹œë¥¼ ìœ„ì„
+        if (uiManager != null)
+        {
+            uiManager.HandleGameOver();
+            if(uiManager.finalDistanceText.text != null)
+            {
+                uiManager.finalDistanceText.text = $"Distance: {currentDistance:F1}m";
+            }
+        }
+        else
+        {
+            Debug.LogError("GameOverê°€ í˜¸ì¶œë˜ì—ˆìœ¼ë‚˜, UIManagerê°€ nullì…ë‹ˆë‹¤!");
+        }
+
+        // 2. í”Œë ˆì´ì–´ì˜ ë¬¼ë¦¬ ë° ì• ë‹ˆë©”ì´ì…˜ ë¹„í™œì„±í™”
+        PlayerRigid.simulated = false;
+        PlayerAnimator.enabled = false;
+        PlayerCollider.enabled = false;
+    }
 }
+// (ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” ê¸°íƒ€ í•¨ìˆ˜ë“¤ì€ í•„ìš”í•˜ë‹¤ë©´ ì£¼ì„ í•´ì œí•˜ì—¬ ì‚¬ìš©í•˜ì„¸ìš”)
+// void KillPlayer() { ... }
+// void Hit() { ... }
+// void Heal() { ... }
+// void StartInvincible() { ... }
+// void StopInvincible() { ... }
